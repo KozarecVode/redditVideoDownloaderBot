@@ -1,17 +1,20 @@
 require("dotenv").config();
-
-import { onMessage, onNodeExit, onReady } from "./functions/events";
-
-//exit hook to run logic after node exists
+const onMessage = require("./functions/events.js").onMessage;
+const onNodeExit = require("./functions/events.js").onNodeExit;
 const exitHook = require("exit-hook");
+const Discord = require("discord.js");
 
 // Create Discord Client
-const Discord = require("discord.js");
 const client = new Discord.Client();
 
 // Discord Events
-client.on("ready", onReady.bind(this, client));
-client.on("message", onMessage);
+client.on("ready", () => {
+  console.log(`Logged in as ${client.user.tag}!`);
+});
+
+client.on("message", function (msg) {
+  onMessage(msg);
+});
 
 // Node events
 exitHook(() => {

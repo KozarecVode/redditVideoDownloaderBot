@@ -1,11 +1,13 @@
-import { get } from "lodash";
-import { redditBaseUrlKey, redditUrls, tempFilePath, videoQualities } from "../constants/general";
-
+const lodash = require("lodash");
+const redditBaseUrlKey = require("../constants/general").redditBaseUrlKey;
+const redditUrls = require("../constants/general").redditUrls;
+const tempFilePath = require("../constants/general").tempFilePath;
+const videoQualities = require("../constants/general").videoQualities;
 const fs = require("fs");
 const https = require("https");
 const axios = require("axios");
 
-export const containsRedditUrl = (word = "") => {
+const containsRedditUrl = (word = "") => {
   let contains = false;
 
   redditUrls.forEach((redditUrl) => {
@@ -17,7 +19,7 @@ export const containsRedditUrl = (word = "") => {
   return contains;
 };
 
-export const extractRedditUrls = (message = "") => {
+const extractRedditUrls = (message = "") => {
   let url = [];
   const urlRegex = /(https?:\/\/[^ ]*)/;
 
@@ -30,13 +32,17 @@ export const extractRedditUrls = (message = "") => {
   return url;
 };
 
-export const getUrlObject = (url) => {
+const getUrlObject = (url) => {
   return axios
     .get(url + ".json")
     .then(async (data) => {
       if (data && data.data) {
-        const baseUrl = get(data, "data[0].data.children[0].data." + redditBaseUrlKey, null);
-        const fallbackUrl = get(data, "data[0].data.children[0].data.secure_media.reddit_video.fallback_url", "");
+        const baseUrl = lodash.get(data, "data[0].data.children[0].data." + redditBaseUrlKey, null);
+        const fallbackUrl = lodash.get(
+          data,
+          "data[0].data.children[0].data.secure_media.reddit_video.fallback_url",
+          ""
+        );
         let quality = getQualityFromFallbackUrl(fallbackUrl);
 
         if (baseUrl && quality) {
@@ -82,7 +88,7 @@ export const getUrlObject = (url) => {
     });
 };
 
-export const downloadFile = (downloadUrl) => {
+const downloadFile = (downloadUrl) => {
   return new Promise((resolve) => {
     const fileName = makeid(10) + ".mp4";
     const path = `${tempFilePath}/${fileName}`;
@@ -99,7 +105,7 @@ export const downloadFile = (downloadUrl) => {
   });
 };
 
-export const makeid = (length) => {
+const makeid = (length) => {
   let result = "";
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   const charactersLength = characters.length;
@@ -110,7 +116,7 @@ export const makeid = (length) => {
   return result;
 };
 
-export const deleteFile = (filePath) => {
+const deleteFile = (filePath) => {
   try {
     fs.unlinkSync(filePath);
   } catch (err) {
@@ -118,7 +124,7 @@ export const deleteFile = (filePath) => {
   }
 };
 
-export const getQualityFromFallbackUrl = (url) => {
+const getQualityFromFallbackUrl = (url) => {
   let quality = null;
 
   if (url) {
@@ -129,3 +135,11 @@ export const getQualityFromFallbackUrl = (url) => {
 
   return videoQualities.includes(quality) ? quality : null;
 };
+
+exports.containsRedditUrl = containsRedditUrl;
+exports.extractRedditUrls = extractRedditUrls;
+exports.getUrlObject = getUrlObject;
+exports.downloadFile = downloadFile;
+exports.makeid = makeid;
+exports.deleteFile = deleteFile;
+exports.getQualityFromFallbackUrl = getQualityFromFallbackUrl;

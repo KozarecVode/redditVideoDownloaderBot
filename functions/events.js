@@ -1,19 +1,19 @@
-import { get } from "lodash";
-import { deleteFile, downloadFile, extractRedditUrls, getUrlObject } from "./general";
+const lodash = require("lodash");
+const deleteFile = require("./general.js").deleteFile;
+const downloadFile = require("./general.js").downloadFile;
+const extractRedditUrls = require("./general.js").extractRedditUrls;
+const getUrlObject = require("./general.js").getUrlObject;
 
-export const onReady = (client) => {
-  console.log(`Successfully logged in as ${client.user.tag}!`);
-};
-
-export const onNodeExit = (client) => {
+const onNodeExit = (client) => {
   client.destroy();
 };
 
-export const onMessage = async (msg) => {
-  const discriminator = get(msg, "author.discriminator", null);
+const onMessage = async (msg) => {
+  const discriminator = lodash.get(msg, "author.discriminator", null);
 
   if (discriminator && discriminator != process.env.BOT_DISCRIMINATOR) {
-    const messageContent = get(msg, "content", "");
+    const messageContent = lodash.get(msg, "content", "");
+
     const redditUrls = extractRedditUrls(messageContent);
     const firstUrl = redditUrls[0] ? redditUrls[0] : null;
 
@@ -23,9 +23,9 @@ export const onMessage = async (msg) => {
       getUrlObject(firstUrl)
         .then((urlObject) => {
           if (urlObject) {
-            const permalink = get(urlObject, "permaLink", null);
-            const videoUrl = get(urlObject, "videoUrl", null);
-            const audioUrl = get(urlObject, "audioUrl", null);
+            const permalink = lodash.get(urlObject, "permaLink", null);
+            const videoUrl = lodash.get(urlObject, "videoUrl", null);
+            const audioUrl = lodash.get(urlObject, "audioUrl", null);
 
             // Use https://ds.redditsave.com/ to download the actual mp4 file
             if (permalink && videoUrl) {
@@ -57,3 +57,6 @@ export const onMessage = async (msg) => {
     }
   }
 };
+
+exports.onNodeExit = onNodeExit;
+exports.onMessage = onMessage;
