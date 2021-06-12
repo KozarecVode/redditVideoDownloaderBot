@@ -1,0 +1,19 @@
+{
+  "name": "redditvideodownloader",
+  "version": "1.0.0",
+  "description": "Responds with a streamable link to mp4 file whenever it sees a reddit URL that contains a video.",
+  "main": "index.js",
+  "author": "igor",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "discord.js": "^12.5.3",
+    "dotenv": "^10.0.0",
+    "esm": "^3.2.25",
+    "lodash": "^4.17.21"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "node -r esm index.js"
+  }
+}
