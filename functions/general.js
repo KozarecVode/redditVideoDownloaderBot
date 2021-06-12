@@ -58,10 +58,18 @@ export const getUrlObject = (url) => {
           return axios
             .get(baseUrl + "/DASH_audio.mp4")
             .then(() => {
-              return { ...obj, audioUrl: baseUrl + "/DASH_audio.mp4" };
+              return {
+                permaLink: url,
+                videoUrl: baseUrl + "/DASH_" + quality + ".mp4",
+                audioUrl: baseUrl + "/DASH_audio.mp4",
+              };
             })
             .catch(() => {
-              return { ...obj, audioUrl: false };
+              return {
+                permaLink: url,
+                videoUrl: baseUrl + "/DASH_" + quality + ".mp4",
+                audioUrl: false,
+              };
             });
         } else {
           console.warn("Unable to get base url from reddit topic: " + url + ".json");
