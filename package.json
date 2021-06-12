@@ -4,6 +4,9 @@
   "description": "Responds with a streamable link to mp4 file whenever it sees a reddit URL that contains a video.",
   "main": "index.js",
   "author": "igor",
+  "engines": {
+    "node": "10.16.3"
+  },
   "license": "ISC",
   "dependencies": {
     "axios": "^0.21.1",
