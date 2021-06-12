@@ -1,11 +1,9 @@
-import dotenv from "dotenv";
+require("dotenv").config();
+
 import { onMessage, onNodeExit, onReady } from "./functions/events";
 
 //exit hook to run logic after node exists
 const exitHook = require("exit-hook");
-
-// Init dotenv for reading .env file
-dotenv.config();
 
 // Create Discord Client
 const Discord = require("discord.js");
