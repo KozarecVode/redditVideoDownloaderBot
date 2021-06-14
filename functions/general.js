@@ -3,6 +3,7 @@ const redditBaseUrlKey = require("../constants/general").redditBaseUrlKey;
 const redditUrls = require("../constants/general").redditUrls;
 const tempFilePath = require("../constants/general").tempFilePath;
 const videoQualities = require("../constants/general").videoQualities;
+const replyWithBaseUrlDomains = require("../constants/general").replyWithBaseUrlDomains;
 const fs = require("fs");
 const https = require("https");
 const axios = require("axios");
@@ -43,7 +44,15 @@ const getUrlObject = (url) => {
           "data[0].data.children[0].data.secure_media.reddit_video.fallback_url",
           ""
         );
+
         let quality = getQualityFromFallbackUrl(fallbackUrl);
+
+        // Check if base url belongs to a file hosting domain (eg: streamable)
+        // In that case there is no need to download the file. The bot should just reply
+        // with streamable (or other) url.
+        if (replyWithBaseUrl(baseUrl)) {
+          return { replyWithBaseUrl: true, baseUrl };
+        }
 
         if (baseUrl && quality) {
           // Check if lower quality is available because discord only allows a max upload of 8MB
@@ -86,6 +95,18 @@ const getUrlObject = (url) => {
     .catch((e) => {
       console.warn("Unable to get necessarry data from reddit topic: " + url + ".json error:", e);
     });
+};
+
+const replyWithBaseUrl = (baseUrl) => {
+  let returnedValue = false;
+
+  replyWithBaseUrlDomains.forEach((item) => {
+    if (baseUrl.includes(item)) {
+      returnedValue = true;
+    }
+  });
+
+  return returnedValue;
 };
 
 const downloadFile = (downloadUrl) => {
