@@ -23,31 +23,40 @@ const onMessage = async (msg) => {
       getUrlObject(firstUrl)
         .then((urlObject) => {
           if (urlObject) {
-            const permalink = lodash.get(urlObject, "permaLink", null);
-            const videoUrl = lodash.get(urlObject, "videoUrl", null);
-            const audioUrl = lodash.get(urlObject, "audioUrl", null);
+            const replyWithBaseUrl = lodash.get(urlObject, "replyWithBaseUrl", false);
 
-            // Use https://ds.redditsave.com/ to download the actual mp4 file
-            if (permalink && videoUrl) {
-              const downloadUrl = `https://ds.redditsave.com/download-sd.php?permalink=${permalink}&video_url=${videoUrl}&audio_url=${audioUrl}`;
+            if (replyWithBaseUrl) {
+              const baseUrl = lodash.get(urlObject, "baseUrl", null);
+              if (baseUrl) {
+                msg.channel.send(`Sharing ${baseUrl} directly`);
+              }
+            } else {
+              const permalink = lodash.get(urlObject, "permaLink", null);
+              const videoUrl = lodash.get(urlObject, "videoUrl", null);
+              const audioUrl = lodash.get(urlObject, "audioUrl", null);
 
-              downloadFile(downloadUrl)
-                .then((filePath) => {
-                  const urlElements = firstUrl.split("/");
-                  const videoTitle =
-                    urlElements && urlElements[urlElements.length - 2] ? urlElements[urlElements.length - 2] : "";
+              // Use https://ds.redditsave.com/ to download the actual mp4 file
+              if (permalink && videoUrl) {
+                const downloadUrl = `https://ds.redditsave.com/download-sd.php?permalink=${permalink}&video_url=${videoUrl}&audio_url=${audioUrl}`;
 
-                  msg.channel
-                    .send(`Uploaded "${videoTitle}" directly`, {
-                      files: [filePath],
-                    })
-                    .finally(() => {
-                      deleteFile(filePath);
-                    });
-                })
-                .catch((e) => {
-                  console.warn("Unable to download file", e);
-                });
+                downloadFile(downloadUrl)
+                  .then((filePath) => {
+                    const urlElements = firstUrl.split("/");
+                    const videoTitle =
+                      urlElements && urlElements[urlElements.length - 2] ? urlElements[urlElements.length - 2] : "";
+
+                    msg.channel
+                      .send(`Uploaded "${videoTitle}" directly`, {
+                        files: [filePath],
+                      })
+                      .finally(() => {
+                        deleteFile(filePath);
+                      });
+                  })
+                  .catch((e) => {
+                    console.warn("Unable to download file", e);
+                  });
+              }
             }
           }
         })
