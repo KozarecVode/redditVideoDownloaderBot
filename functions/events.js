@@ -38,7 +38,7 @@ const onMessage = async (msg) => {
                     urlElements && urlElements[urlElements.length - 2] ? urlElements[urlElements.length - 2] : "";
 
                   msg.channel
-                    .send(`Uploaded "${videoTitle}" directly for user convenience`, {
+                    .send(`Uploaded "${videoTitle}" directly`, {
                       files: [filePath],
                     })
                     .finally(() => {
