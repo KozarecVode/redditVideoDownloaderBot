@@ -13,7 +13,7 @@ const onNodeExit = (client) => {
 const onMessage = async (msg) => {
   const discriminator = lodash.get(msg, "author.discriminator", null);
 
-  // Check if message belongs to the bot
+  // Check if message doesn't belong to the bot
   if (discriminator && discriminator != process.env.BOT_DISCRIMINATOR) {
     const messageContent = lodash.get(msg, "content", "");
     const redditUrls = extractRedditUrls(messageContent);
