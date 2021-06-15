@@ -1,8 +1,8 @@
 {
   "name": "redditvideodownloader",
   "version": "1.0.0",
-  "description": "Responds with a streamable link to mp4 file whenever it sees a reddit URL that contains a video.",
-  "main": "index.js",
+  "description": "Uploads mp4 file directly into discord channel whenever the boot sees reddit url that contains a video.",
+  "main": "src/index.js",
   "author": "igor",
   "engines": {
     "node": "10.16.3"
@@ -17,7 +17,7 @@
     "lodash": "^4.17.21"
   },
   "scripts": {
-    "start": "node index.js"
+    "start": "node src/index.js"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0"
