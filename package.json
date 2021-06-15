@@ -1,7 +1,7 @@
 {
   "name": "redditvideodownloader",
   "version": "1.0.0",
-  "description": "Uploads mp4 file directly into discord channel whenever the boot sees reddit url that contains a video.",
+  "description": "Uploads an mp4 file directly into the discord channel whenever the bot sees a reddit url that contains a video.",
   "main": "src/index.js",
   "author": "igor",
   "engines": {
