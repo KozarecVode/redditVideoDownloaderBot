@@ -2,6 +2,7 @@ const tempFilePath = require("../constants/general").tempFilePath;
 const makeid = require("./general.js").makeid;
 const fs = require("fs");
 const https = require("https");
+const axios = require("axios");
 
 const downloadFile = (downloadUrl) => {
   return new Promise((resolve, reject) => {
@@ -24,18 +25,32 @@ const downloadFile = (downloadUrl) => {
   });
 };
 
-const uploadFile = (filePath, firstUrl, msg) => {
+const uploadFile = async (filePath, firstUrl, msg) => {
   if (filePath) {
     const urlElements = firstUrl.split("/");
     const videoTitle = urlElements && urlElements[urlElements.length - 2] ? urlElements[urlElements.length - 2] : "";
-
-    msg.channel
+    const messageSent = await msg.channel
       .send(`Uploaded "${videoTitle}" directly`, {
         files: [filePath],
       })
-      .finally(() => {
-        deleteFile(filePath);
-      });
+      .catch(() => null);
+
+    if (messageSent) {
+      // Remove embed from original poster
+      // For some reason Discord js lib doesn't allow editing other users message flags so we must call
+      // discord API directly
+      await axios
+        .patch(
+          `https://discord.com/api/channels/${msg.channel.id}/messages/${msg.id}`,
+          {
+            flags: 4,
+          },
+          { headers: { Authorization: `Bot ${process.env.TOKEN}` } }
+        )
+        .catch(() => null);
+    }
+
+    deleteFile(filePath);
   }
 };
 
