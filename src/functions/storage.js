@@ -1,5 +1,6 @@
 const tempFilePath = require("../constants/general").tempFilePath;
 const makeid = require("./general.js").makeid;
+const suppressEmbed = require("./eventHelpers.js").suppressEmbed;
 const fs = require("fs");
 const https = require("https");
 const axios = require("axios");
@@ -36,18 +37,7 @@ const uploadFile = async (filePath, firstUrl, msg) => {
       .catch(() => null);
 
     if (messageSent) {
-      // Remove embed from original poster
-      // For some reason Discord js lib doesn't allow editing other users message flags so we must call
-      // discord API directly
-      await axios
-        .patch(
-          `https://discord.com/api/channels/${msg.channel.id}/messages/${msg.id}`,
-          {
-            flags: 4,
-          },
-          { headers: { Authorization: `Bot ${process.env.TOKEN}` } }
-        )
-        .catch(() => null);
+      suppressEmbed(msg);
     }
 
     deleteFile(filePath);

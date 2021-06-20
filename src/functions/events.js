@@ -3,6 +3,7 @@ const downloadFile = require("./storage.js").downloadFile;
 const uploadFile = require("./storage.js").uploadFile;
 const extractRedditUrls = require("./general.js").extractRedditUrls;
 const getDownloadUrl = require("./eventHelpers.js").getDownloadUrl;
+const suppressEmbed = require("./eventHelpers.js").suppressEmbed;
 const getRedditTopicJson = require("./eventHelpers").getRedditTopicJson;
 const isBaseUrlAStreamingService = require("./eventHelpers").isBaseUrlAStreamingService;
 
@@ -25,7 +26,10 @@ const onMessage = async (msg) => {
       // In that case there is no need to download the file. The bot should just reply
       // with streamable (or other) url.
       if (isBaseUrlAStreamingService(redditJson.baseUrl)) {
-        msg.channel.send(`Sharing ${redditJson.baseUrl} directly`);
+        const messageSent = await msg.channel.send(`Sharing ${redditJson.baseUrl} directly`).catch(() => null);
+        if (messageSent) {
+          suppressEmbed(msg);
+        }
       } else {
         // Use https://ds.redditsave.com/ to download the actual mp4 file
         const downloadUrl = await getDownloadUrl(redditJson, firstUrl).catch(() => null);
