@@ -71,6 +71,21 @@ const isBaseUrlAStreamingService = (baseUrl) => {
   return returnedValue;
 };
 
+// Remove embed from original message
+// For some reason Discord js lib doesn't allow editing other users message flags so we must call
+// discord API directly
+const suppressEmbed = (msg) => {
+  axios
+    .patch(
+      `https://discord.com/api/channels/${msg.channel.id}/messages/${msg.id}`,
+      {
+        flags: 4, //SUPPRESS_EMBED: 1 << 2 (4)
+      },
+      { headers: { Authorization: `Bot ${process.env.TOKEN}` } }
+    )
+    .catch(() => null);
+};
 exports.getDownloadUrl = getDownloadUrl;
 exports.isBaseUrlAStreamingService = isBaseUrlAStreamingService;
 exports.getRedditTopicJson = getRedditTopicJson;
+exports.suppressEmbed = suppressEmbed;
