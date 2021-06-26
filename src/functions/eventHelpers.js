@@ -11,7 +11,13 @@ const getRedditTopicJson = async (url) => {
   if (json) {
     obj = {
       baseUrl: lodash.get(json, "data[0].data.children[0].data." + redditBaseUrlKey, null),
-      fallbackUrl: lodash.get(json, "data[0].data.children[0].data.secure_media.reddit_video.fallback_url", ""),
+      fallbackUrl:
+        lodash.get(json, "data[0].data.children[0].data.secure_media.reddit_video.fallback_url", "") ||
+        lodash.get(
+          json,
+          "data[0].data.children[0].data.crosspost_parent_list[0].secure_media.reddit_video.fallback_url",
+          ""
+        ),
     };
   }
 
