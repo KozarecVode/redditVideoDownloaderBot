@@ -10,7 +10,7 @@ After the download is complete it uploads and embeds the video directly into the
 #### Node.js 14.0.0 or newer is required
 
 - Invite the bot to your server with the following permissions https://discordapi.com/permissions.html#60416 (fill out the client ID)
-- Create a new .env file by copying the .env_sample and define the token and discriminator of your bot application.
+- Create a new .env file by copying the .env_sample and define the token and discriminator of your bot application (you may also input your streamable credentials so the bot may upload files directly to streamable if they are bigger than 8MB).
   For more detail about discord bot applications refer to https://discord.com/developers/docs/intro
 - use `npm install` to install all the packages
 - use `npm start` to start the bot locally

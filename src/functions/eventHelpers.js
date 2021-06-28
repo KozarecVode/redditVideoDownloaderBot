@@ -91,6 +91,7 @@ const suppressEmbed = (msg) => {
     )
     .catch(() => null);
 };
+
 exports.getDownloadUrl = getDownloadUrl;
 exports.isBaseUrlAStreamingService = isBaseUrlAStreamingService;
 exports.getRedditTopicJson = getRedditTopicJson;
