@@ -33,8 +33,8 @@ const onMessage = async (msg) => {
       } else {
         // Use https://ds.redditsave.com/ to download the actual mp4 file
         const downloadUrl = await getDownloadUrl(redditJson, firstUrl).catch(() => null);
-        const filePath = await downloadFile(downloadUrl).catch(() => null);
-        uploadFile(filePath, firstUrl, msg);
+        const file = await downloadFile(downloadUrl).catch(() => null);
+        uploadFile(file, firstUrl, msg);
       }
     }
   }
