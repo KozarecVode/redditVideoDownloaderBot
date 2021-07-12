@@ -117,6 +117,8 @@ const combineAudioVideo = (videoFile, audioFile) => {
       ffmpeg()
         .addInput(videoFile.path)
         .addInput(audioFile.path)
+        .videoCodec("copy")
+        .audioCodec("copy")
         .saveToFile(filePath)
         .on("error", () => {
           reject(null);

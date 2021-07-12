@@ -48,7 +48,12 @@ const parseMetadata = (metaData, fallbackUrl) => {
     //https://v.redd.it/r2hq10ubbvy21/DASH_1080?source=fallback
     const splitFallback = fallbackUrl.split("?source=fallback")[0].split("/");
     const audioPlaylists = lodash.get(metaData, "mediaGroups.AUDIO.audio.main.playlists", []);
-    const videoPlaylists = lodash.get(metaData, "playlists", []).reverse();
+    const videoPlaylists = lodash.orderBy(
+      lodash.get(metaData, "playlists", []),
+      (item) => lodash.get(item, "attributes.RESOLUTION.height", 0),
+      ["asc"]
+    );
+    console.log("videoplaylist", videoPlaylists);
 
     // Get audio URL
     for (let i = 0; i < audioPlaylists.length; i++) {
