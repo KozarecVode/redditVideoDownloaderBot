@@ -7,12 +7,10 @@ const replyWithBaseUrlDomains = [
   "https://redgifs.com/",
 ];
 const tempFilePath = "tempFiles";
-const videoQualities = ["240", "360", "480", "720", "1080"];
 const maxFileUploadSize = 8;
 
 exports.redditUrls = redditUrls;
 exports.redditBaseUrlKey = redditBaseUrlKey;
 exports.tempFilePath = tempFilePath;
-exports.videoQualities = videoQualities;
 exports.replyWithBaseUrlDomains = replyWithBaseUrlDomains;
 exports.maxFileUploadSize = maxFileUploadSize;

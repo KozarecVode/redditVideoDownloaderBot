@@ -1,6 +1,6 @@
 require("dotenv").config();
-const onMessage = require("./functions/events.js").onMessage;
-const onNodeExit = require("./functions/events.js").onNodeExit;
+const onMessage = require("./functions/events/events").onMessage;
+const onNodeExit = require("./functions/events/events").onNodeExit;
 const exitHook = require("exit-hook");
 const Discord = require("discord.js");
 
