@@ -53,7 +53,6 @@ const parseMetadata = (metaData, fallbackUrl) => {
       (item) => lodash.get(item, "attributes.RESOLUTION.height", 0),
       ["asc"]
     );
-    console.log("videoplaylist", videoPlaylists);
 
     // Get audio URL
     for (let i = 0; i < audioPlaylists.length; i++) {
