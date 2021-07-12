@@ -31,7 +31,7 @@ const onMessage = async (msg) => {
         }
       } else {
         const file = await downloadFiles(redditJson).catch(() => null);
-        //uploadFile(file, firstUrl, msg);
+        uploadFile(file, firstUrl, msg);
       }
     }
   }

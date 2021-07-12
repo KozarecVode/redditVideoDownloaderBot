@@ -2,6 +2,7 @@ const fs = require("fs");
 const https = require("https");
 const unirest = require("unirest");
 const lodash = require("lodash");
+const ffmpeg = require("fluent-ffmpeg");
 const tempFilePath = require("../constants/general").tempFilePath;
 const maxFileUploadSize = require("../constants/general").maxFileUploadSize;
 const makeid = require("./general.js").makeid;
@@ -63,7 +64,7 @@ const uploadFile = async (file, firstUrl, msg) => {
 
       if (res && res.shortcode) {
         messageSent = await msg.channel
-          .send(`Streamified ${videoTitle} directly https://streamable.com/${res.shortcode}`)
+          .send(`Streamified "${videoTitle}" directly https://streamable.com/${res.shortcode}`)
           .catch(() => null);
       }
     } else {
@@ -112,8 +113,6 @@ const combineAudioVideo = (videoFile, audioFile) => {
     if (audioFile && videoFile) {
       const fileName = makeid(10) + ".mp4";
       const filePath = `${tempFilePath}/${fileName}`;
-
-      console.log("filePath", filePath);
 
       ffmpeg()
         .addInput(videoFile.path)
