@@ -1,10 +1,32 @@
-const tempFilePath = require("../constants/general").tempFilePath;
-const maxFileUploadSize = require("../constants/general").maxFileUploadSize;
-const makeid = require("./general.js").makeid;
-const suppressEmbed = require("./eventHelpers.js").suppressEmbed;
 const fs = require("fs");
 const https = require("https");
 const unirest = require("unirest");
+const lodash = require("lodash");
+const ffmpeg = require("fluent-ffmpeg");
+const tempFilePath = require("../constants/general").tempFilePath;
+const maxFileUploadSize = require("../constants/general").maxFileUploadSize;
+const makeid = require("./general.js").makeid;
+const suppressEmbed = require("./events/eventHelpers").suppressEmbed;
+
+const downloadFiles = async (redditJson) => {
+  let videoFile;
+  let audioFile;
+  let combinedFile;
+
+  const audioUrl = lodash.get(redditJson, "metaData.audioUrl");
+  const videoUrl = lodash.get(redditJson, "metaData.videoUrl");
+
+  if (videoUrl) {
+    videoFile = await downloadFile(videoUrl).catch(() => null);
+
+    if (videoFile && audioUrl) {
+      audioFile = await downloadFile(audioUrl).catch(() => null);
+      combinedFile = await combineAudioVideo(videoFile, audioFile).catch(() => null);
+    }
+  }
+
+  return combinedFile ? combinedFile : videoFile;
+};
 
 const downloadFile = (downloadUrl) => {
   return new Promise((resolve, reject) => {
@@ -42,7 +64,7 @@ const uploadFile = async (file, firstUrl, msg) => {
 
       if (res && res.shortcode) {
         messageSent = await msg.channel
-          .send(`Streamified ${videoTitle} directly https://streamable.com/${res.shortcode}`)
+          .send(`Streamified "${videoTitle}" directly https://streamable.com/${res.shortcode}`)
           .catch(() => null);
       }
     } else {
@@ -58,16 +80,6 @@ const uploadFile = async (file, firstUrl, msg) => {
     }
 
     deleteFile(filePath);
-  }
-};
-
-const deleteFile = (filePath) => {
-  if (filePath) {
-    try {
-      fs.unlinkSync(filePath);
-    } catch (err) {
-      console.error(err);
-    }
   }
 };
 
@@ -96,11 +108,46 @@ const uploadToStreamable = async (filePath) => {
   });
 };
 
+const combineAudioVideo = (videoFile, audioFile) => {
+  return new Promise((resolve, reject) => {
+    if (audioFile && videoFile) {
+      const fileName = makeid(10) + ".mp4";
+      const filePath = `${tempFilePath}/${fileName}`;
+
+      ffmpeg()
+        .addInput(videoFile.path)
+        .addInput(audioFile.path)
+        .saveToFile(filePath)
+        .on("error", () => {
+          reject(null);
+        })
+        .on("end", () => {
+          deleteFile(videoFile.path);
+          deleteFile(audioFile.path);
+          resolve({ path: filePath, name: fileName, streamify: getFileSize(filePath) > maxFileUploadSize });
+        });
+    } else {
+      reject(null);
+    }
+  });
+};
+
 const getFileSize = (filePath) => {
   const stats = fs.statSync(filePath);
   const fileSizeInBytes = stats.size;
   return fileSizeInBytes / (1024 * 1024);
 };
 
+const deleteFile = (filePath) => {
+  if (filePath) {
+    try {
+      fs.unlinkSync(filePath);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+};
+
 exports.uploadFile = uploadFile;
 exports.downloadFile = downloadFile;
+exports.downloadFiles = downloadFiles;

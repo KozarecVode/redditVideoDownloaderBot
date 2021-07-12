@@ -1,9 +1,8 @@
 const lodash = require("lodash");
-const downloadFile = require("./storage.js").downloadFile;
-const uploadFile = require("./storage.js").uploadFile;
-const extractRedditUrls = require("./general.js").extractRedditUrls;
-const getDownloadUrl = require("./eventHelpers.js").getDownloadUrl;
-const suppressEmbed = require("./eventHelpers.js").suppressEmbed;
+const downloadFiles = require("../storage").downloadFiles;
+const uploadFile = require("../storage").uploadFile;
+const extractRedditUrls = require("../general").extractRedditUrls;
+const suppressEmbed = require("./eventHelpers").suppressEmbed;
 const getRedditTopicJson = require("./eventHelpers").getRedditTopicJson;
 const isBaseUrlAStreamingService = require("./eventHelpers").isBaseUrlAStreamingService;
 
@@ -31,9 +30,7 @@ const onMessage = async (msg) => {
           suppressEmbed(msg);
         }
       } else {
-        // Use https://ds.redditsave.com/ to download the actual mp4 file
-        const downloadUrl = await getDownloadUrl(redditJson, firstUrl).catch(() => null);
-        const file = await downloadFile(downloadUrl).catch(() => null);
+        const file = await downloadFiles(redditJson).catch(() => null);
         uploadFile(file, firstUrl, msg);
       }
     }
