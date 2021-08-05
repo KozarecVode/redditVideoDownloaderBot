@@ -13,25 +13,32 @@ const downloadFiles = async (redditJson) => {
   let audioFile;
   let combinedFile;
 
+  const baseUrl = lodash.get(redditJson, "baseUrl");
   const audioUrl = lodash.get(redditJson, "metaData.audioUrl");
   const videoUrl = lodash.get(redditJson, "metaData.videoUrl");
+  const downloadUrl = baseUrl.substr(baseUrl.length - 4) === ".gif" ? baseUrl : null;
 
-  if (videoUrl) {
-    videoFile = await downloadFile(videoUrl).catch(() => null);
+  if (downloadUrl) {
+    videoFile = await downloadFile(downloadUrl, true).catch(() => null);
+  } else {
+    if (videoUrl) {
+      videoFile = await downloadFile(videoUrl).catch(() => null);
 
-    if (videoFile && audioUrl) {
-      audioFile = await downloadFile(audioUrl).catch(() => null);
-      combinedFile = await combineAudioVideo(videoFile, audioFile).catch(() => null);
+      if (videoFile && audioUrl) {
+        audioFile = await downloadFile(audioUrl).catch(() => null);
+        combinedFile = await combineAudioVideo(videoFile, audioFile).catch(() => null);
+      }
     }
   }
 
   return combinedFile ? combinedFile : videoFile;
 };
 
-const downloadFile = (downloadUrl) => {
+const downloadFile = (downloadUrl, isGif = false) => {
   return new Promise((resolve, reject) => {
     if (downloadUrl) {
-      const fileName = makeid(10) + ".mp4";
+      const extension = isGif ? ".gif" : ".mp4";
+      const fileName = makeid(10) + extension;
       const path = `${tempFilePath}/${fileName}`;
 
       https.get(downloadUrl, (res) => {

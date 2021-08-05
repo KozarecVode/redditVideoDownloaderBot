@@ -1,27 +1,18 @@
 const lodash = require("lodash");
 const axios = require("axios");
-const mpdParser = require("mpd-parser");
 const request = require("request");
+const mpdParser = require("mpd-parser");
 const replyWithBaseUrlDomains = require("../../constants/general").replyWithBaseUrlDomains;
 const redditBaseUrlKey = require("../../constants/general").redditBaseUrlKey;
+const getHtmlAttribute = require("../../functions/general").getHtmlAttribute;
 
 const getRedditTopicJson = async (url) => {
   let obj = null;
   const json = await axios.get(url + ".json").catch(() => null);
   const baseUrl = lodash.get(json, "data[0].data.children[0].data." + redditBaseUrlKey, null);
 
-  const fallbackUrl =
-    lodash.get(json, "data[0].data.children[0].data.secure_media.reddit_video.fallback_url", "") ||
-    lodash.get(
-      json,
-      "data[0].data.children[0].data.crosspost_parent_list[0].secure_media.reddit_video.fallback_url",
-      ""
-    );
-
-  const metaDataUrl =
-    lodash.get(json, "data[0].data.children[0].data.secure_media.reddit_video.dash_url", "") ||
-    lodash.get(json, "data[0].data.children[0].data.crosspost_parent_list[0].secure_media.reddit_video.dash_url", "");
-
+  const fallbackUrl = await getFallbackUrl(json, baseUrl);
+  const metaDataUrl = await getMetadataUrl(json, baseUrl);
   const metaData = await getMetadata(metaDataUrl, fallbackUrl).catch(() => null);
 
   if (json) {
@@ -93,6 +84,42 @@ const getMetadata = (url, fallbackUrl) => {
       reject(null);
     }
   });
+};
+
+const getMetadataUrl = async (json, baseUrl) => {
+  let metaDataUrl = "";
+
+  if (baseUrl.includes("link") && baseUrl.includes("video") && baseUrl.includes("player")) {
+    const response = await axios.get(baseUrl).catch(() => null);
+    const htmlString = lodash.get(response, "data");
+    metaDataUrl = getHtmlAttribute("data-mpd-url", htmlString);
+  } else {
+    metaDataUrl =
+      lodash.get(json, "data[0].data.children[0].data.secure_media.reddit_video.dash_url", "") ||
+      lodash.get(json, "data[0].data.children[0].data.crosspost_parent_list[0].secure_media.reddit_video.dash_url", "");
+  }
+
+  return metaDataUrl;
+};
+
+const getFallbackUrl = async (json, baseUrl) => {
+  let fallbackUrl = "";
+
+  if (baseUrl.includes("link") && baseUrl.includes("video") && baseUrl.includes("player")) {
+    const response = await axios.get(baseUrl).catch(() => null);
+    const htmlString = lodash.get(response, "data");
+    fallbackUrl = getHtmlAttribute("data-seek-preview-url", htmlString);
+  } else {
+    fallbackUrl =
+      lodash.get(json, "data[0].data.children[0].data.secure_media.reddit_video.fallback_url", "") ||
+      lodash.get(
+        json,
+        "data[0].data.children[0].data.crosspost_parent_list[0].secure_media.reddit_video.fallback_url",
+        ""
+      );
+  }
+
+  return fallbackUrl;
 };
 
 const getTextFromRemoteFile = (url) => {

@@ -1,3 +1,5 @@
+const axios = require("axios");
+const lodash = require("lodash");
 const redditUrls = require("../constants/general").redditUrls;
 
 const containsRedditUrl = (word = "") => {
@@ -36,6 +38,19 @@ const makeid = (length) => {
   return result;
 };
 
+const getHtmlAttribute = (attrName, htmlString) => {
+  let value = "";
+
+  if (htmlString) {
+    const dataAttrIndexStart = htmlString.indexOf(attrName) + attrName.length + 2;
+    const dataAttrIndexEnd = htmlString.indexOf(`"`, dataAttrIndexStart);
+    value = dataAttrIndexStart < dataAttrIndexEnd ? htmlString.substring(dataAttrIndexStart, dataAttrIndexEnd) : "";
+  }
+
+  return value;
+};
+
 exports.containsRedditUrl = containsRedditUrl;
 exports.extractRedditUrls = extractRedditUrls;
 exports.makeid = makeid;
+exports.getHtmlAttribute = getHtmlAttribute;
