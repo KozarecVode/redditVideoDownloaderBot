@@ -2,6 +2,7 @@ const fs = require("fs");
 const https = require("https");
 const unirest = require("unirest");
 const lodash = require("lodash");
+const axios = require("axios");
 const ffmpeg = require("fluent-ffmpeg");
 const tempFilePath = require("../constants/general").tempFilePath;
 const maxFileUploadSize = require("../constants/general").maxFileUploadSize;
@@ -71,7 +72,7 @@ const uploadFile = async (file, firstUrl, msg) => {
 
       if (res && res.shortcode) {
         messageSent = await msg.channel
-          .send(`Streamified "${videoTitle}" directly https://streamable.com/${res.shortcode}`)
+          .send(`Streamified "${videoTitle}" https://streamable.com/${res.shortcode}`)
           .catch(() => null);
       }
     } else {
@@ -105,11 +106,33 @@ const uploadToStreamable = async (filePath) => {
         if (res.error) {
           reject(res.error);
         } else {
-          // Embed is not immediately available
-          // Wait 4 seconds...
-          setTimeout(() => {
-            resolve(res.body);
-          }, 4000);
+          // Check if uploaded file is done processing by calling GET
+          // and checking the status in response every 5 seconds
+          const shortCode = res.body && res.body.shortcode ? res.body.shortcode : null;
+
+          if (shortCode) {
+            let finishedProcessing = false;
+            let getCounter = 0;
+
+            const intervalObj = setInterval(async () => {
+              const response = await axios.get(`https://api.streamable.com/videos/${shortCode}`).catch(() => null);
+              const status = lodash.get(response, "data.status");
+              const percent = lodash.get(response, "data.percent");
+
+              if (status === 2 && percent === 100) {
+                finishedProcessing = true;
+              }
+
+              getCounter++;
+
+              if (getCounter > 20 || finishedProcessing) {
+                clearInterval(intervalObj);
+                resolve(res.body);
+              }
+            }, 5000);
+          } else {
+            reject(null);
+          }
         }
       });
   });
