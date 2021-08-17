@@ -5,6 +5,7 @@ const replyWithBaseUrlDomains = [
   "https://gfycat.com/",
   "https://imgur.com",
   "https://redgifs.com/",
+  "https://i.imgur.com/",
 ];
 const tempFilePath = "tempFiles";
 const maxFileUploadSize = 8;
