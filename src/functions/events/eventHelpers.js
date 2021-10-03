@@ -2,24 +2,37 @@ const lodash = require("lodash");
 const axios = require("axios");
 const request = require("request");
 const mpdParser = require("mpd-parser");
-const replyWithBaseUrlDomains = require("../../constants/general").replyWithBaseUrlDomains;
+const replyWithBaseUrlDomains =
+  require("../../constants/general").replyWithBaseUrlDomains;
 const redditBaseUrlKey = require("../../constants/general").redditBaseUrlKey;
 const getHtmlAttribute = require("../../functions/general").getHtmlAttribute;
 
 const getRedditTopicJson = async (url) => {
   let obj = null;
   const json = await axios.get(url + ".json").catch(() => null);
-  const baseUrl = lodash.get(json, "data[0].data.children[0].data." + redditBaseUrlKey, null);
+  const baseUrl = lodash.get(
+    json,
+    "data[0].data.children[0].data." + redditBaseUrlKey,
+    null
+  );
 
   const fallbackUrl = await getFallbackUrl(json, baseUrl);
   const metaDataUrl = await getMetadataUrl(json, baseUrl);
-  const metaData = await getMetadata(metaDataUrl, fallbackUrl).catch(() => null);
+  const metaData = await getMetadata(metaDataUrl, fallbackUrl).catch(
+    () => null
+  );
+  const preview = lodash.get(
+    json,
+    "data[0].data.children[0].data.preview",
+    null
+  );
 
   if (json) {
     obj = {
       baseUrl,
       fallbackUrl,
       metaData,
+      hasPreview: preview ? true : false,
     };
   }
 
@@ -38,7 +51,11 @@ const parseMetadata = (metaData, fallbackUrl) => {
 
     //https://v.redd.it/r2hq10ubbvy21/DASH_1080?source=fallback
     const splitFallback = fallbackUrl.split("?source=fallback")[0].split("/");
-    const audioPlaylists = lodash.get(metaData, "mediaGroups.AUDIO.audio.main.playlists", []);
+    const audioPlaylists = lodash.get(
+      metaData,
+      "mediaGroups.AUDIO.audio.main.playlists",
+      []
+    );
     const videoPlaylists = lodash.orderBy(
       lodash.get(metaData, "playlists", []),
       (item) => lodash.get(item, "attributes.RESOLUTION.height", 0),
@@ -47,10 +64,13 @@ const parseMetadata = (metaData, fallbackUrl) => {
 
     // Get audio URL
     for (let i = 0; i < audioPlaylists.length; i++) {
-      audioPlaylistUrl = lodash.get(audioPlaylists[i], "sidx.uri", "").replace("/", "");
+      audioPlaylistUrl = lodash
+        .get(audioPlaylists[i], "sidx.uri", "")
+        .replace("/", "");
 
       if (audioPlaylistUrl) {
-        splitFallback[splitFallback.length - 1] = audioPlaylistUrl + "?source=fallback";
+        splitFallback[splitFallback.length - 1] =
+          audioPlaylistUrl + "?source=fallback";
         audioUrl = splitFallback.join("/");
         break;
       }
@@ -58,11 +78,17 @@ const parseMetadata = (metaData, fallbackUrl) => {
 
     // Get Video URL
     for (let i = 0; i < videoPlaylists.length; i++) {
-      videoHeight = lodash.get(videoPlaylists[i], "attributes.RESOLUTION.height");
-      videoPlaylistUrl = lodash.get(videoPlaylists[i], "sidx.uri", "").replace("/", "");
+      videoHeight = lodash.get(
+        videoPlaylists[i],
+        "attributes.RESOLUTION.height"
+      );
+      videoPlaylistUrl = lodash
+        .get(videoPlaylists[i], "sidx.uri", "")
+        .replace("/", "");
 
       if (videoHeight === 360 || videoHeight === 480 || videoHeight === 720) {
-        splitFallback[splitFallback.length - 1] = videoPlaylistUrl + "?source=fallback";
+        splitFallback[splitFallback.length - 1] =
+          videoPlaylistUrl + "?source=fallback";
         videoUrl = splitFallback.join("/");
         break;
       }
@@ -89,14 +115,26 @@ const getMetadata = (url, fallbackUrl) => {
 const getMetadataUrl = async (json, baseUrl) => {
   let metaDataUrl = "";
 
-  if (baseUrl.includes("link") && baseUrl.includes("video") && baseUrl.includes("player")) {
+  if (
+    baseUrl.includes("link") &&
+    baseUrl.includes("video") &&
+    baseUrl.includes("player")
+  ) {
     const response = await axios.get(baseUrl).catch(() => null);
     const htmlString = lodash.get(response, "data");
     metaDataUrl = getHtmlAttribute("data-mpd-url", htmlString);
   } else {
     metaDataUrl =
-      lodash.get(json, "data[0].data.children[0].data.secure_media.reddit_video.dash_url", "") ||
-      lodash.get(json, "data[0].data.children[0].data.crosspost_parent_list[0].secure_media.reddit_video.dash_url", "");
+      lodash.get(
+        json,
+        "data[0].data.children[0].data.secure_media.reddit_video.dash_url",
+        ""
+      ) ||
+      lodash.get(
+        json,
+        "data[0].data.children[0].data.crosspost_parent_list[0].secure_media.reddit_video.dash_url",
+        ""
+      );
   }
 
   return metaDataUrl;
@@ -105,13 +143,21 @@ const getMetadataUrl = async (json, baseUrl) => {
 const getFallbackUrl = async (json, baseUrl) => {
   let fallbackUrl = "";
 
-  if (baseUrl.includes("link") && baseUrl.includes("video") && baseUrl.includes("player")) {
+  if (
+    baseUrl.includes("link") &&
+    baseUrl.includes("video") &&
+    baseUrl.includes("player")
+  ) {
     const response = await axios.get(baseUrl).catch(() => null);
     const htmlString = lodash.get(response, "data");
     fallbackUrl = getHtmlAttribute("data-seek-preview-url", htmlString);
   } else {
     fallbackUrl =
-      lodash.get(json, "data[0].data.children[0].data.secure_media.reddit_video.fallback_url", "") ||
+      lodash.get(
+        json,
+        "data[0].data.children[0].data.secure_media.reddit_video.fallback_url",
+        ""
+      ) ||
       lodash.get(
         json,
         "data[0].data.children[0].data.crosspost_parent_list[0].secure_media.reddit_video.fallback_url",
