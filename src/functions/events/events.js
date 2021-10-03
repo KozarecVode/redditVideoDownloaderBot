@@ -22,20 +22,20 @@ const onMessage = async (msg) => {
     const redditJson = await getRedditTopicJson(firstUrl).catch(() => null);
 
     if (redditJson) {
-      // If video is already embedable
-      if (redditJson.hasPreview) {
-        return;
-      }
       // Check if base url belongs to a file hosting domain (eg: streamable)
       // In that case there is no need to download the file. The bot should just reply
       // with streamable (or other) url.
-      else if (isBaseUrlAStreamingService(redditJson.baseUrl)) {
+      if (isBaseUrlAStreamingService(redditJson.baseUrl)) {
         const messageSent = await msg.channel
           .send(`Sharing ${redditJson.baseUrl} directly`)
           .catch(() => null);
         if (messageSent) {
           suppressEmbed(msg);
         }
+      }
+      // If video is already embedable
+      if (redditJson.hasPreview) {
+        return;
       } else {
         const file = await downloadFiles(redditJson).catch(() => null);
         uploadFile(file, firstUrl, msg);
