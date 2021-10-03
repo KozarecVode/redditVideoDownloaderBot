@@ -4,7 +4,8 @@ const uploadFile = require("../storage").uploadFile;
 const extractRedditUrls = require("../general").extractRedditUrls;
 const suppressEmbed = require("./eventHelpers").suppressEmbed;
 const getRedditTopicJson = require("./eventHelpers").getRedditTopicJson;
-const isBaseUrlAStreamingService = require("./eventHelpers").isBaseUrlAStreamingService;
+const isBaseUrlAStreamingService =
+  require("./eventHelpers").isBaseUrlAStreamingService;
 
 const onNodeExit = (client) => {
   client.destroy();
@@ -21,11 +22,17 @@ const onMessage = async (msg) => {
     const redditJson = await getRedditTopicJson(firstUrl).catch(() => null);
 
     if (redditJson) {
+      // If video is already embedable
+      if (redditJson.hasPreview) {
+        return;
+      }
       // Check if base url belongs to a file hosting domain (eg: streamable)
       // In that case there is no need to download the file. The bot should just reply
       // with streamable (or other) url.
-      if (isBaseUrlAStreamingService(redditJson.baseUrl)) {
-        const messageSent = await msg.channel.send(`Sharing ${redditJson.baseUrl} directly`).catch(() => null);
+      else if (isBaseUrlAStreamingService(redditJson.baseUrl)) {
+        const messageSent = await msg.channel
+          .send(`Sharing ${redditJson.baseUrl} directly`)
+          .catch(() => null);
         if (messageSent) {
           suppressEmbed(msg);
         }
