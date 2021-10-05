@@ -27,12 +27,18 @@ const getRedditTopicJson = async (url) => {
     null
   );
 
+  const over18 = lodash.get(
+    json,
+    "data[0].data.children[0].data.over_18",
+    null
+  );
+
   if (json) {
     obj = {
       baseUrl,
       fallbackUrl,
       metaData,
-      hasPreview: preview ? true : false,
+      embeddable: preview && !over18 ? true : false,
     };
   }
 

@@ -34,7 +34,7 @@ const onMessage = async (msg) => {
         }
       }
       // If video is already embedable
-      if (redditJson.hasPreview) {
+      if (redditJson.embeddable) {
         return;
       } else {
         const file = await downloadFiles(redditJson).catch(() => null);
