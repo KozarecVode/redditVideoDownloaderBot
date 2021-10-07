@@ -125,7 +125,7 @@ const uploadToStreamable = async (filePath) => {
 
               getCounter++;
 
-              if (getCounter > 20 || finishedProcessing) {
+              if (getCounter > 60 || finishedProcessing) {
                 clearInterval(intervalObj);
                 resolve(res.body);
               }
