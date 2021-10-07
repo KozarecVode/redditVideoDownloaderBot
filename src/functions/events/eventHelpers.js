@@ -2,6 +2,7 @@ const lodash = require("lodash");
 const axios = require("axios");
 const request = require("request");
 const mpdParser = require("mpd-parser");
+const urlMetadata = require("url-metadata");
 const replyWithBaseUrlDomains =
   require("../../constants/general").replyWithBaseUrlDomains;
 const redditBaseUrlKey = require("../../constants/general").redditBaseUrlKey;
@@ -18,14 +19,12 @@ const getRedditTopicJson = async (url) => {
 
   const fallbackUrl = await getFallbackUrl(json, baseUrl);
   const metaDataUrl = await getMetadataUrl(json, baseUrl);
+  const pageMetadata = await urlMetadata(url).catch(() => null);
   const metaData = await getMetadata(metaDataUrl, fallbackUrl).catch(
     () => null
   );
-  const preview = lodash.get(
-    json,
-    "data[0].data.children[0].data.preview",
-    null
-  );
+
+  const ogType = lodash.get(pageMetadata, "og:type");
 
   const over18 = lodash.get(
     json,
@@ -38,7 +37,7 @@ const getRedditTopicJson = async (url) => {
       baseUrl,
       fallbackUrl,
       metaData,
-      embeddable: preview && !over18 ? true : false,
+      embeddable: ogType === "video" && !over18 ? true : false,
     };
   }
 
