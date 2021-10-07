@@ -24,8 +24,7 @@ const getRedditTopicJson = async (url) => {
     () => null
   );
 
-  const ogType = lodash.get(pageMetadata, "og:type");
-
+  const ogType = lodash.get(pageMetadata, "og:type", "") || "";
   const over18 = lodash.get(
     json,
     "data[0].data.children[0].data.over_18",
@@ -37,7 +36,10 @@ const getRedditTopicJson = async (url) => {
       baseUrl,
       fallbackUrl,
       metaData,
-      embeddable: ogType === "video" && !over18 ? true : false,
+      embeddable:
+        typeof ogType === "string" && ogType.includes("video") && !over18
+          ? true
+          : false,
     };
   }
 
