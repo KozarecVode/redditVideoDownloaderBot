@@ -8,7 +8,7 @@ const replyWithBaseUrlDomains =
 const redditBaseUrlKey = require("../../constants/general").redditBaseUrlKey;
 const getHtmlAttribute = require("../../functions/general").getHtmlAttribute;
 
-const getRedditTopicJson = async (url) => {
+const getRedditTopicJson = async (url, messageType) => {
   let obj = null;
   const json = await axios.get(url + ".json").catch(() => null);
   const baseUrl = lodash.get(
@@ -37,7 +37,10 @@ const getRedditTopicJson = async (url) => {
       fallbackUrl,
       metaData,
       embeddable:
-        typeof ogType === "string" && ogType.includes("video") && !over18
+        typeof ogType === "string" &&
+        ogType.includes("video") &&
+        !over18 &&
+        messageType !== "dm"
           ? true
           : false,
     };
