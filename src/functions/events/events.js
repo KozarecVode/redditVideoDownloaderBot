@@ -13,6 +13,7 @@ const onNodeExit = (client) => {
 
 const onMessage = async (msg) => {
   const discriminator = lodash.get(msg, "author.discriminator", null);
+  const messageType = lodash.get(msg, "channel.type");
 
   // Check if message doesn't belong to the bot
   if (discriminator && discriminator != process.env.BOT_DISCRIMINATOR) {
@@ -34,7 +35,7 @@ const onMessage = async (msg) => {
         }
       }
       // If video is already embedable
-      if (redditJson.embeddable) {
+      if (redditJson.embeddable && messageType !== "dm") {
         return;
       } else {
         const file = await downloadFiles(redditJson).catch(() => null);
