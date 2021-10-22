@@ -13,13 +13,16 @@ const onNodeExit = (client) => {
 
 const onMessage = async (msg) => {
   const discriminator = lodash.get(msg, "author.discriminator", null);
+  const messageType = lodash.get(msg, "channel.type");
 
   // Check if message doesn't belong to the bot
   if (discriminator && discriminator != process.env.BOT_DISCRIMINATOR) {
     const messageContent = lodash.get(msg, "content", "");
     const redditUrls = extractRedditUrls(messageContent);
     const firstUrl = redditUrls[0] ? redditUrls[0] : null;
-    const redditJson = await getRedditTopicJson(firstUrl).catch(() => null);
+    const redditJson = await getRedditTopicJson(firstUrl, messageType).catch(
+      () => null
+    );
 
     if (redditJson) {
       // Check if base url belongs to a file hosting domain (eg: streamable)
