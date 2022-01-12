@@ -34,13 +34,15 @@ const onMessage = async (msg) => {
           suppressEmbed(msg);
         }
       }
+      const file = await downloadFiles(redditJson).catch(() => null);
+      uploadFile(file, firstUrl, msg);
+      /*
       // If video is already embedable
       if (redditJson.embeddable && messageType !== "dm") {
         return;
       } else {
-        const file = await downloadFiles(redditJson).catch(() => null);
-        uploadFile(file, firstUrl, msg);
       }
+      */
     }
   }
 };
