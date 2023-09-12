@@ -3,6 +3,7 @@ const onMessage = require("./functions/events/events").onMessage;
 const onNodeExit = require("./functions/events/events").onNodeExit;
 const exitHook = require("exit-hook");
 const Discord = require("discord.js");
+const http = require("http");
 
 // Create Discord Client
 const client = new Discord.Client();
