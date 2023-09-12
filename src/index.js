@@ -24,3 +24,12 @@ exitHook(() => {
 
 // Login
 client.login(process.env.TOKEN);
+
+
+http
+  .createServer(function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.write("Ok!");
+    res.end();
+  })
+  .listen(8080);
