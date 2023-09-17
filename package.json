@@ -15,6 +15,7 @@
     "exit-hook": "^2.2.1",
     "express": "^4.17.1",
     "fluent-ffmpeg": "^2.1.2",
+    "jsdom": "^22.1.0",
     "lodash": "^4.17.21",
     "mpd-parser": "^0.17.0",
     "unirest": "^0.6.0",

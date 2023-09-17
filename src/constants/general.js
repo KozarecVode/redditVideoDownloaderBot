@@ -1,4 +1,4 @@
-const redditUrls = ["https://old.reddit.com/r/", "https://www.reddit.com/r/","https://reddit.com/r/"];
+const redditUrls = ["https://old.reddit.com/r/", "https://www.reddit.com/r/", "https://reddit.com/r/"];
 const redditBaseUrlKey = "url_overridden_by_dest";
 const replyWithBaseUrlDomains = [
   "https://streamable.com",
@@ -6,6 +6,7 @@ const replyWithBaseUrlDomains = [
   "https://imgur.com",
   "https://redgifs.com/",
   "https://i.imgur.com/",
+  "https://www.youtube.com/",
 ];
 const tempFilePath = "tempFiles";
 const maxFileUploadSize = 8;
