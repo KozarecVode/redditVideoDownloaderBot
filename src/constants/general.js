@@ -9,7 +9,7 @@ const replyWithBaseUrlDomains = [
   "https://www.youtube.com/",
 ];
 const tempFilePath = "tempFiles";
-const maxFileUploadSize = 8;
+const maxFileUploadSize = 25;
 
 exports.redditUrls = redditUrls;
 exports.redditBaseUrlKey = redditBaseUrlKey;
