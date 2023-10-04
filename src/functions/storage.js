@@ -77,7 +77,7 @@ const uploadFile = async (file, firstUrl, msg) => {
       }
     } else {
       messageSent = await msg.channel
-        .send(`Uploaded "${videoTitle}" directly`, {
+        .send(``, {
           files: [filePath],
         })
         .catch(() => null);
