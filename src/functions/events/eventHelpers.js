@@ -74,7 +74,10 @@ const parseMetadata = (metaData, fallbackUrl) => {
 
     //https://v.redd.it/r2hq10ubbvy21/DASH_1080?source=fallback
     const splitFallback = fallbackUrl.split("?source=fallback")[0].split("/");
-    const audioPlaylists = lodash.get(metaData, "mediaGroups.AUDIO.audio.main.playlists", []);
+    let audioPlaylists = lodash.get(metaData, "mediaGroups.AUDIO.audio.main.playlists", []);
+    if (!audioPlaylists.length) {
+      audioPlaylists = lodash.get(metaData, "mediaGroups.AUDIO.audio.en.playlists", []);
+    }
     const videoPlaylists = lodash.orderBy(
       lodash.get(metaData, "playlists", []),
       (item) => lodash.get(item, "attributes.RESOLUTION.height", 0),
