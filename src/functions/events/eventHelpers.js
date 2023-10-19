@@ -20,7 +20,7 @@ const getRedditTopicJson = async (url) => {
   }
   // links like https://reddit.com/r/sipstea/xxxx are different
   // we need to first create a get request and then extract the actual url of this post
-  if (url.includes("https://reddit.com/r/") && !url.includes("comments")) {
+  if ((url.includes("https://reddit.com/r/") || url.includes("https://www.reddit.com/r/")) && !url.includes("comments")) {
     let html = await axios.get(url).catch(() => null);
     if (!html) {
       return {};
