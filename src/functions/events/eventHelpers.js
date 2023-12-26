@@ -39,7 +39,7 @@ const getRedditTopicJson = async (url) => {
   }
 
   let obj = null;
-  const json = await axios.get(url + ".json").catch(() => null);
+  const json = await axios.get(encodeURI(url) + ".json").catch(() => null);
   const baseUrl = lodash.get(json, "data[0].data.children[0].data." + redditBaseUrlKey, null);
 
   const fallbackUrl = await getFallbackUrl(json, baseUrl);
