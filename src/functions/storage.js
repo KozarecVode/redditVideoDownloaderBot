@@ -4,6 +4,7 @@ const unirest = require("unirest");
 const lodash = require("lodash");
 const axios = require("axios");
 const ffmpeg = require("fluent-ffmpeg");
+const { getBrowserHeaders } = require("./general.js");
 const tempFilePath = require("../constants/general").tempFilePath;
 const maxFileUploadSize = require("../constants/general").maxFileUploadSize;
 const makeid = require("./general.js").makeid;
@@ -71,9 +72,7 @@ const uploadFile = async (file, firstUrl, msg) => {
       const res = await uploadToStreamable(filePath, fileName).catch(() => null);
 
       if (res && res.shortcode) {
-        messageSent = await msg.channel
-          .send(`Streamified "${videoTitle}" https://streamable.com/${res.shortcode}`)
-          .catch(() => null);
+        messageSent = await msg.channel.send(`Streamified "${videoTitle}" https://streamable.com/${res.shortcode}`).catch(() => null);
       }
     } else {
       messageSent = await msg.channel
@@ -92,9 +91,7 @@ const uploadFile = async (file, firstUrl, msg) => {
 };
 
 const uploadToStreamable = async (filePath) => {
-  const authToken = Buffer.from(`${process.env.STREAMABLE_EMAIL}:${process.env.STREAMABLE_PASSWORD}`).toString(
-    "base64"
-  );
+  const authToken = Buffer.from(`${process.env.STREAMABLE_EMAIL}:${process.env.STREAMABLE_PASSWORD}`).toString("base64");
 
   return new Promise((resolve, reject) => {
     unirest("POST", "https://api.streamable.com/upload")
@@ -115,7 +112,7 @@ const uploadToStreamable = async (filePath) => {
             let getCounter = 0;
 
             const intervalObj = setInterval(async () => {
-              const response = await axios.get(`https://api.streamable.com/videos/${shortCode}`).catch(() => null);
+              const response = await axios.get(`https://api.streamable.com/videos/${shortCode}`, getBrowserHeaders()).catch(() => null);
               const status = lodash.get(response, "data.status");
               const percent = lodash.get(response, "data.percent");
 

@@ -7,6 +7,7 @@ const replyWithBaseUrlDomains = require("../../constants/general").replyWithBase
 const redditBaseUrlKey = require("../../constants/general").redditBaseUrlKey;
 const getHtmlAttribute = require("../../functions/general").getHtmlAttribute;
 const jsdom = require("jsdom");
+const { getBrowserHeaders } = require("../../functions/general");
 const { JSDOM } = jsdom;
 const virtualConsole = new jsdom.VirtualConsole();
 virtualConsole.on("error", () => {
@@ -21,7 +22,7 @@ const getRedditTopicJson = async (url) => {
   // links like https://reddit.com/r/sipstea/xxxx are different
   // we need to first create a get request and then extract the actual url of this post
   if ((url.includes("https://reddit.com/r/") || url.includes("https://www.reddit.com/r/")) && !url.includes("comments")) {
-    let html = await axios.get(url).catch(() => null);
+    let html = await axios.get(url, getBrowserHeaders()).catch(() => null);
     if (!html) {
       return {};
     }
@@ -39,7 +40,7 @@ const getRedditTopicJson = async (url) => {
   }
 
   let obj = null;
-  const json = await axios.get(encodeURI(url) + ".json").catch(() => null);
+  const json = await axios.get(encodeURI(url) + ".json", getBrowserHeaders()).catch(() => null);
   const baseUrl = lodash.get(json, "data[0].data.children[0].data." + redditBaseUrlKey, null);
 
   const fallbackUrl = await getFallbackUrl(json, baseUrl);
@@ -129,7 +130,7 @@ const getMetadataUrl = async (json, baseUrl) => {
   let metaDataUrl = "";
 
   if (baseUrl.includes("link") && baseUrl.includes("video") && baseUrl.includes("player")) {
-    const response = await axios.get(baseUrl).catch(() => null);
+    const response = await axios.get(baseUrl, getBrowserHeaders()).catch(() => null);
     const htmlString = lodash.get(response, "data");
     metaDataUrl = getHtmlAttribute("data-mpd-url", htmlString);
   } else {
@@ -145,7 +146,7 @@ const getFallbackUrl = async (json, baseUrl) => {
   let fallbackUrl = "";
 
   if (baseUrl.includes("link") && baseUrl.includes("video") && baseUrl.includes("player")) {
-    const response = await axios.get(baseUrl).catch(() => null);
+    const response = await axios.get(baseUrl, getBrowserHeaders()).catch(() => null);
     const htmlString = lodash.get(response, "data");
     fallbackUrl = getHtmlAttribute("data-seek-preview-url", htmlString);
   } else {
